@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WhatsApp Bot Pairing</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f2f2f2; }
+    input, button { padding: 10px; font-size: 16px; margin: 10px; }
+    #qrCode img { margin-top: 20px; max-width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <h2>Pair WhatsApp Bot</h2>
+  <form id="pairForm">
+    <input type="text" id="number" placeholder="Masukkan nomor WhatsApp" required />
+    <button type="submit">Kirim</button>
+  </form>
+  <div id="qrCode"></div>
+  <script>
+    const form = document.getElementById("pairForm");
+    const qrDiv = document.getElementById("qrCode");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const number = document.getElementById("number").value;
+      qrDiv.innerHTML = "Memproses...";
+      try {
+        const res = await fetch("/api/pair", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ number })
+        });
+        const data = await res.json();
+        if (data.qr) {
+          qrDiv.innerHTML = `<img src="${data.qr}" alt="QR Code Pairing" />`;
+        } else {
+          qrDiv.innerHTML = `<p>Gagal: ${data.message || 'Terjadi kesalahan'}</p>`;
+        }
+      } catch (err) {
+        qrDiv.innerHTML = "<p>Terjadi kesalahan saat menghubungi server.</p>";
+      }
+    });
+  </script>
+</body>
+</html>
